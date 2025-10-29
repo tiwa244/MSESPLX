@@ -399,8 +399,8 @@ function Library:Destroy()
 	end
 
 	-- // Destroy Library // --
-	Library.Destroyed = true;
 	Library:Clear();
+	Library.Destroyed = true;
 
 	-- // Destroy Folders // --
 	ActiveFolder:Destroy();
