@@ -1,0 +1,12 @@
+[package]
+name = "mstudio45/msesp"
+version = "0.1.1"
+registry = "https://github.com/UpliftGames/wally-index"
+realm = "shared"
+license = "MIT"
+description = "Universal ESP Library for Roblox Scripts."
+
+exclude = ["**"]
+include = ["LICENSE", "source.luau", "source.lua", "wally.toml"]
+
+[dependencies]
