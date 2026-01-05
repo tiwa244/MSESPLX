@@ -10,7 +10,7 @@
 		███   ███   ███          ███        ███    █▄           ███   ███
 		███   ███   ███    ▄█    ███        ███    ███    ▄█    ███   ███
 		▀█   ███   █▀   ▄████████▀         ██████████  ▄████████▀   ▄████▀
-									v2.0.3
+									v2.0.4
 
 						 Created by mstudio45 (Discord)
 				Contributors: Dottik, Master Oogway, deividcomsono
@@ -79,7 +79,7 @@
 	})
 --]]
 
-local VERSION = "2.0.3";
+local VERSION = "2.0.4";
 local DEBUG_ENABLED = getgenv().mstudio45_ESP_DEBUG == true;
 
 local debug_print = if DEBUG_ENABLED then (function(...) print("[mstudio45's ESP]", ...) end) else (function() end);
@@ -853,7 +853,7 @@ function Library:Add(espSettings: ESPSettings)
 			return
 		end
 
-		ESP.Hidden = true
+		ESP.Hidden = true;
 
 		--// Apply to Instances \\--
 		Billboard.Enabled = false;
@@ -873,19 +873,23 @@ function Library:Add(espSettings: ESPSettings)
 	end
 
 	function ESP:Show(force: boolean?)
-		ESP.CurrentSettings.Visible = true
+		if not (ESP and ESP.CurrentSettings and ESP.Deleted ~= true) then return end
+
+		ESP.CurrentSettings.Visible = true;
 		Show(force);
 	end
 
 	function ESP:Hide(force: boolean?)
 		if not (ESP and ESP.CurrentSettings and ESP.Deleted ~= true) then return end
 
-		ESP.CurrentSettings.Visible = false
+		ESP.CurrentSettings.Visible = false;
 		Hide(force);
 	end
 
 	function ESP:ToggleVisibility(force: boolean?)
-		ESP.CurrentSettings.Visible = not ESP.CurrentSettings.Visible
+		if not (ESP and ESP.CurrentSettings and ESP.Deleted ~= true) then return end
+
+		ESP.CurrentSettings.Visible = not ESP.CurrentSettings.Visible;
 		if ESP.CurrentSettings.Visible then
 			Show(force);
 		else
@@ -901,7 +905,7 @@ function Library:Add(espSettings: ESPSettings)
 		if ESP.Deleted == true or not ESPSettings then return end
 		
 		-- // Early exit conditions // --
-		if not (ESPSettings.Visible and camera and (if Library.GlobalConfig.IgnoreCharacter == true then true else rootPart)) then
+		if ESPSettings.Visible == false or not (camera and (if Library.GlobalConfig.IgnoreCharacter == true then true else rootPart)) then
 			Hide()
 			return
 		end
@@ -927,10 +931,10 @@ function Library:Add(espSettings: ESPSettings)
 			SafeCallback(ESPSettings.BeforeUpdate, ESP)
 		end
 
-		-- // Update Arrow (only requires distance check) // --
+		-- // Update Arrow // --
 		if Arrow then
-			Arrow.Visible = Library.GlobalConfig.Arrows == true and ESPSettings.Arrow.Enabled == true and (isOnScreen ~= true);
-
+			Arrow.Visible = isOnScreen == false and (Library.GlobalConfig.Arrows == true and ESPSettings.Arrow.Enabled == true);
+	
 			if Arrow.Visible then
 				local screenSize = camera.ViewportSize
 				local centerPos = Vector2.new(screenSize.X / 2, screenSize.Y / 2)
@@ -961,14 +965,9 @@ function Library:Add(espSettings: ESPSettings)
 			end
 		end
 
-		if isOnScreen == false then
-			Hide()
-			return
-		else Show() end
-
 		-- // Update Tracer // --
 		if Tracer then
-			Tracer.Visible = Library.GlobalConfig.Tracers == true and ESPSettings.Tracer.Enabled == true;
+			Tracer.Visible = isOnScreen == true and (Library.GlobalConfig.Tracers == true and ESPSettings.Tracer.Enabled == true);
 
 			if Tracer.Visible then
 				-- // Position // --
@@ -995,7 +994,7 @@ function Library:Add(espSettings: ESPSettings)
 
 		-- // Update Billboard // --
 		if Billboard then
-			Billboard.Enabled = Library.GlobalConfig.Billboards == true;
+			Billboard.Enabled = isOnScreen == true and (Library.GlobalConfig.Billboards == true);
 
 			if Billboard.Enabled then
 				if Library.GlobalConfig.Distance then
@@ -1018,10 +1017,12 @@ function Library:Add(espSettings: ESPSettings)
 
 		-- // Update Highlighter // --
 		if Highlighter then
-			Highlighter.Parent = if Library.GlobalConfig.Highlighters == true then ActiveFolder else StorageFolder;
-			Highlighter.Adornee = if Library.GlobalConfig.Highlighters == true then ESPSettings.Model else nil;
+			local HighlightEnabled = isOnScreen == true and (Library.GlobalConfig.Highlighters == true)
 
-			if Highlighter.Adornee then
+			Highlighter.Parent  = if HighlightEnabled then ActiveFolder else StorageFolder;
+			Highlighter.Adornee = if HighlightEnabled then ESPSettings.Model else nil;
+
+			if HighlightEnabled then
 				if IsAdornment then
 					Highlighter.Color3 = 
 						if Library.GlobalConfig.Rainbow then Library.RainbowColor else ESPSettings.Color;
@@ -1053,8 +1054,10 @@ function Library:Add(espSettings: ESPSettings)
 		end
 	end
 
-	if not ESP.OriginalSettings.Visible then
+	if ESP.OriginalSettings.Visible == false then
 		Hide()
+	else
+		Show()
 	end
 
 	Library.ESP[ESP.Index] = ESP
