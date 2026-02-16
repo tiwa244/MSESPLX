@@ -844,9 +844,11 @@ local Components = {}; do
 		-- // Highlighter Data // --
 		local function SetVisible(visible: boolean)
 			if not Highlighter then return end
-			if Highlighter.Adornee == nil then return end
 
-			Highlighter.Parent  = if visible then ActiveFolder else StorageFolder;
+			local Parent = if visible then ActiveFolder else StorageFolder;
+			if Highlighter.Parent == Parent then return end
+
+			Highlighter.Parent  = Parent;
 			Highlighter.Adornee = if visible then ESP.CurrentSettings.Model else nil;
 		end
 
