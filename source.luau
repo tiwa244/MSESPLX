@@ -116,6 +116,24 @@ export type ESPSettings = {
 	AfterUpdate: ((self: ESPSettings) -> nil)?
 }
 
+export type ESPInstance = {
+	Index: string,
+	Hidden: boolean,
+	Deleted: boolean,
+
+	OriginalSettings: ESPSettings,
+	CurrentSettings: ESPSettings,
+
+	Connections: { RBXScriptConnection },
+	Components: {},
+
+	Show: (self, Force: boolean?) -> nil,
+	Hide: (self, Force: boolean?) -> nil,
+	ToggleVisibility: (self, Force: boolean?) -> nil,
+	SetEveryColor: (self, Color: Color3, IncludeComponents: boolean) -> nil,
+	Destroy: (self) -> nil
+}
+
 local DefaultSettings: ESPSettings = {
 	Name = "New ESP",
 	Model = nil,
@@ -1722,7 +1740,7 @@ function Library:Add(espSettings: ESPSettings)
 
 		Connections = {} :: { RBXScriptConnection },
 		Components = {}
-	}
+	} :: ESPInstance;
 
 	debug_print("Creating ESP...", ESP.Index, "-", ESP.CurrentSettings.Name)
 
@@ -1855,7 +1873,10 @@ function Library:Add(espSettings: ESPSettings)
 		-- // Components // --
 		if IncludeComponents == true then
 			for Name, Component in ESP.Components do
-				ESPSettings[Name].Color = Color;
+				local ComponentTable = ESPSettings[Name]
+				if typeof(ComponentTable) ~= "table" then continue end
+
+				ComponentTable.Color = Color;
 			end
 		end
 	end
