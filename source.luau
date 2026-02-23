@@ -97,6 +97,8 @@ export type ESPSettings = {
 	-- // Highlight Settings // --
 	FillColor: Color3?,
 	OutlineColor: Color3?,
+    FadeOutTime = number?,
+    FadeInTime = number?
 
 	FillTransparency: number?,
 	OutlineTransparency: number?,
@@ -1994,4 +1996,5 @@ end))
 
 debug_print("Loaded! (" .. tostring(VERSION) ..")")
 getgenv().mstudio45_ESP = Library
+
 return Library
